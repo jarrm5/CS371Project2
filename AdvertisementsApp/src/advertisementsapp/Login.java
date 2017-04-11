@@ -5,9 +5,6 @@
  */
 package advertisementsapp;
 
-import com.mysql.jdbc.Connection;
-import com.mysql.jdbc.PreparedStatement;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import javax.swing.JOptionPane;
 
@@ -16,12 +13,22 @@ import javax.swing.JOptionPane;
  * @author jarrm5
  */
 public class Login extends javax.swing.JFrame {
+    
+    private SQLHelper helper;
 
     /**
      * Creates new form Login
      */
     public Login() {
         initComponents();
+        //Initialize credentials
+        String driver = "com.mysql.jdbc.Driver";
+        String host = "kc-sce-appdb01";
+        String dbName = "jarrm5_1";
+        String dbUsername = "jarrm5_1";
+        String dbPassword = "zuK2AMhttSIdGx2vrD3a";
+        //Create the connection
+        helper = new SQLHelper(driver,host,dbName,dbUsername,dbPassword);
     }
 
     /**
@@ -41,8 +48,11 @@ public class Login extends javax.swing.JFrame {
         button_login = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Login");
+        setName(""); // NOI18N
 
         jPanel1.setBackground(new java.awt.Color(51, 51, 51));
+        jPanel1.setName(""); // NOI18N
 
         jLabel1.setBackground(new java.awt.Color(204, 204, 204));
         jLabel1.setForeground(new java.awt.Color(204, 204, 204));
@@ -102,7 +112,7 @@ public class Login extends javax.swing.JFrame {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         pack();
@@ -114,13 +124,25 @@ public class Login extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(null, "Please type the username");
         else{  
              // Collecting the input
-            String user = textfield_username.getText();  
+            String username = textfield_username.getText();  
             String type = combobox_type.getSelectedItem().toString().toLowerCase();
+            //Create the user object here
+            User user = new User();
             
-            if(validate_login(user,type))
-               JOptionPane.showMessageDialog(null, "Correct Login Credentials");        
-            else
-               JOptionPane.showMessageDialog(null, "Incorrect Login Credentials\r\n" + "-You may have entered an incorrect username\r\n" + "-You aren't a moderator");
+            try{
+                if(validateLogin(username,type,user)){
+                    JOptionPane.showMessageDialog(null, user);
+                }
+            }
+            catch(UserException u){
+                JOptionPane.showMessageDialog(null, u.getMessage());
+            }
+            catch(AuthenticationException a){
+                JOptionPane.showMessageDialog(null, a.getMessage());
+            }
+            catch(Exception e){
+                JOptionPane.showMessageDialog(null, e.getMessage());
+            }       
         }        
     }//GEN-LAST:event_button_loginActionPerformed
 
@@ -159,38 +181,45 @@ public class Login extends javax.swing.JFrame {
         });
     }
     
-    private boolean validate_login(String username,String type) {
-        try{           
-            Class.forName("com.mysql.jdbc.Driver");  // MySQL database connection
-            Connection conn = (Connection) DriverManager.getConnection("jdbc:mysql://kc-sce-appdb01:3306/jarrm5_1?" + "user=jarrm5_1&password=zuK2AMhttSIdGx2vrD3a");
+    private boolean validateLogin(String username,String type, User user) throws Exception{
+        ResultSet rs;
+        
+        try{
+            rs = helper.getUserName(username, "user");
             
-            //Query components
-            String select = "SELECT User_id FROM ";
-            String table = "Users ";
-            String where = "WHERE user_id = ?;";
-            
-            //If moderator was specified, query from the moderators table
-            if(type.equals("moderator")){
-                table = "Moderators ";
+            if(!rs.next()){
+                throw new UserException("Invalid Username.");
             }
             
-            //Put the query together
-            PreparedStatement pst = (PreparedStatement) conn.prepareStatement(select + table + where);         
-            pst.setString(1, username);
+            //username approved, set the username fields
+            user.setUserId(rs.getString("User_ID"));
+            user.setFirstName(rs.getString("UsrFirst_Name"));
+            user.setLastName(rs.getString("UsrLast_Name"));
             
-            //Execute the query
-            ResultSet rs = pst.executeQuery();
-            
-            if(rs.next())            
-                return true;    
-            else
-                return false;            
+            if(type.toLowerCase().equals("moderator")){
+                rs = helper.getUserName(username, type);
+                
+                if(!rs.next()){
+                    throw new AuthenticationException(username + " is not a registered moderator.");
+                }
+                //Success: mark the user as a moderator
+                user.setIsModerator();
+            }
         }
-        //failed to connect
+        //Invalid username
+        catch(UserException u){
+            throw u;
+        }
+        //Not a moderator
+        catch(AuthenticationException a){
+            throw a;
+        }
+        //Database issues
         catch(Exception e){
-            //e.printStackTrace();
-            return false;
-        }       
+            throw e;
+        }
+        
+        return true;
      }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
