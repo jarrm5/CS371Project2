@@ -6,6 +6,7 @@
 package advertisementsapp;
 
 import java.sql.ResultSet;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 /**
@@ -131,7 +132,9 @@ public class Login extends javax.swing.JFrame {
             
             try{
                 if(validateLogin(username,type,user)){
-                    JOptionPane.showMessageDialog(null, user);
+                    //JOptionPane.showMessageDialog(null, "Success!");
+                    JFrame userAds = new UserAds(user,helper);
+                    userAds.setVisible(true);
                 }
             }
             catch(UserException u){
@@ -142,7 +145,8 @@ public class Login extends javax.swing.JFrame {
             }
             catch(Exception e){
                 JOptionPane.showMessageDialog(null, e.getMessage());
-            }       
+            }
+            
         }        
     }//GEN-LAST:event_button_loginActionPerformed
 
@@ -181,24 +185,30 @@ public class Login extends javax.swing.JFrame {
         });
     }
     
+    //Validate correct username, then validate moderators if that option was selected
+    //Throw the appropriate exception if either one fails
+    //Return true if the user logged in correctly
     private boolean validateLogin(String username,String type, User user) throws Exception{
         ResultSet rs;
         
         try{
             rs = helper.getUserName(username, "user");
             
+            //Invalid username
             if(!rs.next()){
                 throw new UserException("Invalid Username.");
             }
             
-            //username approved, set the username fields
+            //Username approved, set the username fields
             user.setUserId(rs.getString("User_ID"));
             user.setFirstName(rs.getString("UsrFirst_Name"));
             user.setLastName(rs.getString("UsrLast_Name"));
             
+            //User wishes to log is an a moderator
             if(type.toLowerCase().equals("moderator")){
                 rs = helper.getUserName(username, type);
                 
+                //Not a moderator
                 if(!rs.next()){
                     throw new AuthenticationException(username + " is not a registered moderator.");
                 }
@@ -206,6 +216,7 @@ public class Login extends javax.swing.JFrame {
                 user.setIsModerator();
             }
         }
+        //Possible errors that could occur, pass the exception to login button event for display
         //Invalid username
         catch(UserException u){
             throw u;

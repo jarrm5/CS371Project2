@@ -15,6 +15,7 @@ public class SQLHelper {
     
     private Connection conn;
     
+    //Constructor initalizes the connection
     public SQLHelper(String driver, String hostName, String databaseName, String username, String password){
         try{
             Class.forName(driver);  // MySQL database connection
@@ -22,12 +23,21 @@ public class SQLHelper {
             conn = (Connection) DriverManager.getConnection(connectionString);
         }
         catch (Exception e){
-            JOptionPane.showMessageDialog(null, "There is a problem with the database connection.");
+            JOptionPane.showMessageDialog(null, "There is a problem with the database connection. Details:\n\r" + e.getMessage());
         }
     }
     public Connection getConn(){
         return conn;
     }
+    public void done() throws Exception{
+        try{
+            this.conn.close();
+        }
+        catch(Exception e){
+            throw e;
+        }
+    }
+    //Get the user name from the database
     public ResultSet getUserName(String username, String type) throws Exception{
          
         ResultSet rs;
@@ -41,7 +51,6 @@ public class SQLHelper {
         catch (Exception e){
             throw e;
         }
-        
         return rs;
     }
 }
