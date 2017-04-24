@@ -17,6 +17,7 @@ public class Advertisement {
     private int ModeratorID;
     private int CategoryID;
     private int StatusID;
+    private String StatusName;
     
     public Advertisement () {}
     
@@ -24,6 +25,15 @@ public class Advertisement {
         this.AdvTitle = AdvTitle;
         this.AdvDetails = AdvDetails;
         this.Price = Price;
+        this.AdvDateTime = AdvDateTime;
+    }
+    
+    public Advertisement(int AdvertisementID,String AdvTitle,String AdvDetails,double Price,String StatusName,Date AdvDateTime){
+        this.AdvertisementID = AdvertisementID;
+        this.AdvTitle = AdvTitle;
+        this.AdvDetails = AdvDetails;
+        this.Price = Price;
+        this.StatusName = StatusName;
         this.AdvDateTime = AdvDateTime;
     }
     
@@ -92,7 +102,16 @@ public class Advertisement {
     public void setStatusID(int StatusID){
         this.StatusID = StatusID;
     }
-    Object[] toArray(){
+    public String getStatusName(){
+        return StatusName;
+    }
+    public void setStatusName(String StatusName){
+        this.StatusName = StatusName;
+    }
+    Object[] toAdArray(){
         return new Object[]{AdvTitle,AdvDetails,Price,AdvDateTime};
+    }
+    Object[] toMyAdArray(){
+        return new Object[]{AdvertisementID,AdvTitle,AdvDetails,Price,StatusName,AdvDateTime};
     }   
 }
