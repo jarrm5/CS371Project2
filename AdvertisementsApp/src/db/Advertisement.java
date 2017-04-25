@@ -13,10 +13,10 @@ public class Advertisement {
     private String AdvDetails;
     private Date AdvDateTime;
     private double Price;
-    private int UserID;
-    private int ModeratorID;
-    private int CategoryID;
-    private int StatusID;
+    private String UserID;
+    private String ModeratorID;
+    private String CategoryID;
+    private String StatusID;
     private String StatusName;
     
     public Advertisement () {}
@@ -28,6 +28,25 @@ public class Advertisement {
         this.AdvDateTime = AdvDateTime;
     }
     
+    public Advertisement(int AdvertisementID,String AdvTitle,String AdvDetails,double Price,Date AdvDateTime,String UserID){
+        this.AdvertisementID = AdvertisementID;
+        this.AdvTitle = AdvTitle;
+        this.AdvDetails = AdvDetails;
+        this.Price = Price;
+        this.AdvDateTime = AdvDateTime;
+        this.UserID = UserID;
+    }
+    
+    public Advertisement(int AdvertisementID,String AdvTitle,String AdvDetails,double Price,String StatusName,Date AdvDateTime,String UserID){
+        this.AdvertisementID = AdvertisementID;
+        this.AdvTitle = AdvTitle;
+        this.AdvDetails = AdvDetails;
+        this.Price = Price;
+        this.AdvDateTime = AdvDateTime;
+        this.StatusName = StatusName;
+        this.UserID = UserID;
+    }
+    
     public Advertisement(int AdvertisementID,String AdvTitle,String AdvDetails,double Price,String StatusName,Date AdvDateTime){
         this.AdvertisementID = AdvertisementID;
         this.AdvTitle = AdvTitle;
@@ -37,17 +56,7 @@ public class Advertisement {
         this.AdvDateTime = AdvDateTime;
     }
     
-    public Advertisement(int AdvertisementID, String AdvTitle,String AdvDetails,Date AdvDateTime,double Price,int UserID,int ModeratorID,int CategoryID,int StatusID){
-        this.AdvertisementID = AdvertisementID;
-        this.AdvTitle = AdvTitle;
-        this.AdvDetails = AdvDetails;
-        this.AdvDateTime = AdvDateTime;
-        this.Price = Price;
-        this.UserID = UserID;
-        this.ModeratorID = ModeratorID;
-        this.CategoryID = CategoryID;
-        this.StatusID = StatusID;
-    }
+    
     public int getAdvertisementID(){
         return AdvertisementID;
     }
@@ -78,28 +87,28 @@ public class Advertisement {
     public void setPrice(int Price){
         this.Price = Price;
     }
-    public int getUserID(){
+    public String getUserID(){
         return UserID;
     }
-    public void setUserID(int UserID){
+    public void setUserID(String UserID){
         this.UserID = UserID;
     }
-    public int getModeratorID(){
+    public String getModeratorID(){
         return ModeratorID;
     }
-    public void setModeratorID(int ModeratorID){
+    public void setModeratorID(String ModeratorID){
         this.ModeratorID = ModeratorID;
     }
-    public int getCategoryID(){
+    public String getCategoryID(){
         return CategoryID;
     }
-    public void setCategoryID(int CategoryID){
+    public void setCategoryID(String CategoryID){
         this.CategoryID = CategoryID;
     }
-    public int getStatusID(){
+    public String getStatusID(){
         return StatusID;
     }
-    public void setStatusID(int StatusID){
+    public void setStatusID(String StatusID){
         this.StatusID = StatusID;
     }
     public String getStatusName(){
@@ -113,5 +122,11 @@ public class Advertisement {
     }
     Object[] toMyAdArray(){
         return new Object[]{AdvertisementID,AdvTitle,AdvDetails,Price,StatusName,AdvDateTime};
-    }   
+    }
+    Object[] toUnclaimAdArray(){
+        return new Object[]{AdvertisementID,AdvTitle,AdvDetails,Price,AdvDateTime,UserID};
+    }
+    Object[] toModArray(){
+        return new Object[]{AdvertisementID,AdvTitle,AdvDetails,Price,StatusName,AdvDateTime,UserID};
+    }
 }

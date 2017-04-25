@@ -9,6 +9,8 @@ import db.SQLHelper;
 import db.SQLHelper.Record;
 import db.User;
 import java.util.LinkedList;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -83,6 +85,7 @@ public class UserAds extends javax.swing.JFrame {
         myAdvertisementsJTable = new javax.swing.JTable();
         EditButton = new javax.swing.JButton();
         DeleteButton = new javax.swing.JButton();
+        AddButton = new javax.swing.JButton();
 
         jButton1.setText("jButton1");
 
@@ -196,6 +199,11 @@ public class UserAds extends javax.swing.JFrame {
         });
 
         DeleteButton.setText("Delete");
+        DeleteButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                DeleteButtonActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -227,19 +235,30 @@ public class UserAds extends javax.swing.JFrame {
 
         AdvTabs.addTab("My Advertisements", jPanel3);
 
+        AddButton.setText("Add Advertisement");
+        AddButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                AddButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(59, 59, 59)
-                .addComponent(AdvTabs, javax.swing.GroupLayout.PREFERRED_SIZE, 596, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(AdvTabs, javax.swing.GroupLayout.PREFERRED_SIZE, 596, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(AddButton, javax.swing.GroupLayout.PREFERRED_SIZE, 171, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(68, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap(90, Short.MAX_VALUE)
+                .addGap(24, 24, 24)
+                .addComponent(AddButton, javax.swing.GroupLayout.DEFAULT_SIZE, 60, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(AdvTabs, javax.swing.GroupLayout.PREFERRED_SIZE, 313, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(28, 28, 28))
         );
@@ -314,13 +333,75 @@ public class UserAds extends javax.swing.JFrame {
         String AND = " AND (AdvTitle LIKE '%" + search + "%' OR AdvDetails LIKE '%" + search + "%');";
         populate_advertisements_table(AND);
     }//GEN-LAST:event_GoButtonActionPerformed
-
+    
+    //Edit button pressed
     private void EditButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_EditButtonActionPerformed
-        // TODO add your handling code here:
+        /*
+               NEED TO LOCK THE ID COLUMN
+               NEED TO VALIDATE THE 3 COLUMNS IN CASE THE USER TYPES AN EMPPY STRING
+        */
+        //Get the id of the row of the listview that is clicked
+        int rowClicked = myAdvertisementsJTable.getSelectedRow();
+        boolean result = false;
+        String toUpdate = "";
+        
+        //Check to see if a row was clicked at all
+        if(rowClicked >= 0){
+            //Row clicked, now get the id of the ad that was clicked
+            toUpdate = myAdvertisementsJTable.getValueAt(rowClicked,0).toString();
+            //Get the updates from AdvTitle,AdvDetails,Price columns ONLY
+            String title = myAdvertisementsJTable.getValueAt(rowClicked,1).toString();
+            String details = myAdvertisementsJTable.getValueAt(rowClicked,2).toString();
+            double price = Double.parseDouble(myAdvertisementsJTable.getValueAt(rowClicked,3).toString());
+            //execute the update
+            result=helper.updateAdvertisement(toUpdate,title,details,price);
+        }
+        
+        //Show message that the ad was succesfully deleted.
+        if(result){
+             JOptionPane.showMessageDialog(this,"Advertisement #" + toUpdate +" was succesfully updated.","Confirmation",JOptionPane.INFORMATION_MESSAGE);
+        }
+        //reload the ads screen
+        populate_advertisements_table("");
+        populate_myadvertisements_table();
+        
     }//GEN-LAST:event_EditButtonActionPerformed
+    //Delete button pressed
+    private void DeleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DeleteButtonActionPerformed
+        //Get the id of the row of the listview that is clicked
+        int rowClicked = myAdvertisementsJTable.getSelectedRow();
+        boolean result = false;
+        
+        //Check to see if a row was clicked at all
+        if(rowClicked >= 0){
+            //Row clicked, now get the id of the ad that was clicked
+            String toDelete = myAdvertisementsJTable.getValueAt(rowClicked,0).toString();
+            //delete it
+            result=helper.deleteAdvertisement(toDelete);
+        }
+        
+        //Show message that the ad was succesfully deleted.
+        if(result){
+             JOptionPane.showMessageDialog(this,"Advertisement was deleted succesfully.","Confirmation",JOptionPane.INFORMATION_MESSAGE);
+        }
+        //reload the ads screen
+        populate_advertisements_table("");
+        populate_myadvertisements_table();
+    }//GEN-LAST:event_DeleteButtonActionPerformed
+    //Add advertisements button clicked
+    private void AddButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AddButtonActionPerformed
+        //Go to add advertisement frame
+        JFrame new_ad = new InsertAd(helper,this,user);
+        new_ad.setVisible(true);
+        
+        //Reload both screens
+        populate_advertisements_table("");
+        populate_myadvertisements_table();
+    }//GEN-LAST:event_AddButtonActionPerformed
     
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton AddButton;
     private javax.swing.JTabbedPane AdvTabs;
     private javax.swing.JComboBox CatFilter;
     private javax.swing.JButton DeleteButton;

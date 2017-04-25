@@ -122,7 +122,7 @@ public class Login extends javax.swing.JFrame {
         if(textfield_username.getText().length()==0)  
             JOptionPane.showMessageDialog(null, "Please type the username");
         else{  
-             // Collecting the input
+             //Collecting the input
             String username = textfield_username.getText();  
             String type = combobox_type.getSelectedItem().toString().toLowerCase();
             //Create the user object here
@@ -131,16 +131,28 @@ public class Login extends javax.swing.JFrame {
             try{
                 if(validateLogin(username,type,user)){
                     //JOptionPane.showMessageDialog(null, "Success!");
-                    JFrame userAds = new UserAds(user,helper);
-                    userAds.setVisible(true);
+                    if(!user.getIsModerator()){
+                        //logged in as user
+                        JFrame userAds = new UserAds(user,helper);
+                        userAds.setVisible(true);
+                    }
+                    else{
+                        //logged in as moderator
+                        JFrame modAds = new ModeratorAds(user,helper);
+                        modAds.setVisible(true);
+                    }
+                    
                 }
             }
+            //Invalid username
             catch(UserException u){
                 JOptionPane.showMessageDialog(null, u.getMessage());
             }
+            //Not a moderator
             catch(AuthenticationException a){
                 JOptionPane.showMessageDialog(null, a.getMessage());
             }
+            //Database issues
             catch(Exception e){
                 JOptionPane.showMessageDialog(null, e.getMessage());
             }
@@ -193,7 +205,7 @@ public class Login extends javax.swing.JFrame {
         catch(Exception e){
             throw e;
         }
-        
+        //User credentials passed all tests
         return true;
      }
 
